@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Sri's Interview Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper: #FAF8F3;
+    --paper-line: #E4DFD3;
+    --ink: #23271F;
+    --ink-soft: #5B5F52;
+    --accent: #B4682A;
+    --upcoming: #3D5A80;
+    --completed: #6B6F5E;
+    --passed: #4C7A5C;
+    --offer: #2E6B4F;
+    --rejected: #A6432A;
+    --card: #FFFFFF;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 28px 20px 60px;
+  }
+
+  .wrap{ max-width: 880px; margin: 0 auto; }
+
+  @media (max-width: 560px){
+    body{ padding: 18px 14px 50px; }
+    h1{ font-size: 24px; }
+    .stats{ gap: 16px; width: 100%; justify-content: space-between; }
+    header{ flex-direction: column; align-items: flex-start; }
+    .toolbar{ flex-direction: column; align-items: stretch; }
+    .add-btn{ width: 100%; padding: 12px 16px; }
+    .filters{ overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
+    .filter-btn{ flex-shrink: 0; }
+  }
+
+  header{
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h1{
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 30px;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+
+  .tagline{
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .stats{
+    display: flex;
+    gap: 22px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  .stat-num{
+    font-size: 20px;
+    font-weight: 500;
+    display: block;
+  }
+
+  .stat-label{ color: var(--ink-soft); }
+
+  .toolbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filters{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn{
+    border: 1px solid var(--paper-line);
+    background: var(--card);
+    color: var(--ink-soft);
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .filter-btn.active{
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  button.add-btn{
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+  }
+
+  button.add-btn:hover{ opacity: 0.92; }
+
+  .panel{
+    background: var(--card);
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    padding: 18px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .panel.open{ display: block; }
+
+  .panel-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .panel-grid .full{ grid-column: 1 / -1; }
+
+  @media (max-width: 560px){
+    .panel-grid{ grid-template-columns: 1fr; }
+  }
+
+  label{
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  input, select, textarea{
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--paper-line);
+    border-radius: 3px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  textarea{ resize: vertical; min-height: 50px; }
+
+  .panel-actions{
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-secondary{
+    background: transparent;
+    border: 1px solid var(--paper-line);
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink-soft);
+  }
+
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .entry{
+    background: var(--card);
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
+
+  @media (max-width: 560px){
+    .entry{ grid-template-columns: 1fr; }
+    .entry-actions{
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-top: 1px solid var(--paper-line);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+    .status-select{ flex: 1; }
+  }
+
+  .entry-main{ min-width: 0; }
+
+  .entry-top{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .role{
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .company{
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .round{
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .entry-meta{
+    margin-top: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .entry-notes{
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .entry-link{
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .entry-link a{ color: var(--accent); }
+
+  .badge{
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: white;
+  }
+
+  .badge.Upcoming{ background: var(--upcoming); }
+  .badge.Completed{ background: var(--completed); }
+  .badge.Passed{ background: var(--passed); }
+  .badge.Offer{ background: var(--offer); }
+  .badge.Rejected{ background: var(--rejected); }
+
+  .entry-actions{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+  }
+
+  select.status-select{
+    font-size: 12px;
+    padding: 4px 6px;
+    width: auto;
+  }
+
+  .icon-btn{
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: underline;
+    padding: 6px 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .empty{
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--ink-soft);
+  }
+
+  .empty .role{ font-size: 18px; }
+
+  .loading{ text-align:center; padding: 40px; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Sri's Interview Log</h1>
+      <div class="tagline">every round, tracked</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="filters" id="filters"></div>
+    <button class="add-btn" id="openAdd">+ Log interview</button>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="panel-grid">
+      <div>
+        <label>Company</label>
+        <input id="f-company" placeholder="e.g. Belden Inc" />
+      </div>
+      <div>
+        <label>Role</label>
+        <input id="f-role" placeholder="e.g. SAC Developer" />
+      </div>
+      <div>
+        <label>Round / stage</label>
+        <input id="f-round" placeholder="e.g. Technical screen, Round 2, Final" />
+      </div>
+      <div>
+        <label>Format</label>
+        <select id="f-format">
+          <option>Phone</option>
+          <option>Video</option>
+          <option>Onsite</option>
+          <option>Take-home</option>
+        </select>
+      </div>
+      <div>
+        <label>Date</label>
+        <input id="f-date" type="date" />
+      </div>
+      <div>
+        <label>Time</label>
+        <input id="f-time" type="time" />
+      </div>
+      <div>
+        <label>Interviewer</label>
+        <input id="f-interviewer" placeholder="e.g. Manthan Shekhar Vernekar" />
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="f-status">
+          <option>Upcoming</option>
+          <option>Completed</option>
+          <option>Passed</option>
+          <option>Offer</option>
+          <option>Rejected</option>
+        </select>
+      </div>
+      <div class="full">
+        <label>Meeting link</label>
+        <input id="f-link" placeholder="https://..." />
+      </div>
+      <div class="full">
+        <label>Questions asked / prep notes</label>
+        <textarea id="f-notes" placeholder="What was asked, how it went, what to prep for next round..."></textarea>
+      </div>
+    </div>
+    <div class="panel-actions">
+      <button class="btn-secondary" id="cancelBtn">Cancel</button>
+      <button class="btn-primary" id="saveBtn">Save entry</button>
+    </div>
+  </div>
+
+  <div id="list"><div class="loading">Loading your log…</div></div>
+
+</div>
+
+<script>
+let entries = [];
+let editingId = null;
+let activeFilter = 'All';
+const STATUSES = ['Upcoming','Completed','Passed','Offer','Rejected'];
+
+async function load(){
+  try{
+    const res = await window.storage.get('interviews');
+    entries = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    entries = [];
+  }
+  render();
+}
+
+async function persist(){
+  try{
+    await window.storage.set('interviews', JSON.stringify(entries));
+  }catch(e){
+    console.error('Save failed', e);
+  }
+}
+
+function openPanel(entry){
+  editingId = entry ? entry.id : null;
+  document.getElementById('f-company').value = entry ? entry.company : '';
+  document.getElementById('f-role').value = entry ? entry.role : '';
+  document.getElementById('f-round').value = entry ? entry.round : '';
+  document.getElementById('f-format').value = entry ? entry.format : 'Video';
+  document.getElementById('f-date').value = entry ? entry.date : new Date().toISOString().slice(0,10);
+  document.getElementById('f-time').value = entry ? entry.time : '';
+  document.getElementById('f-interviewer').value = entry ? entry.interviewer : '';
+  document.getElementById('f-status').value = entry ? entry.status : 'Upcoming';
+  document.getElementById('f-link').value = entry ? entry.link : '';
+  document.getElementById('f-notes').value = entry ? entry.notes : '';
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('f-company').focus();
+}
+
+function closePanel(){
+  document.getElementById('panel').classList.remove('open');
+  editingId = null;
+}
+
+async function saveEntry(){
+  const company = document.getElementById('f-company').value.trim();
+  const role = document.getElementById('f-role').value.trim();
+  if(!company || !role){
+    alert('Company and role are required.');
+    return;
+  }
+  const data = {
+    company,
+    role,
+    round: document.getElementById('f-round').value.trim(),
+    format: document.getElementById('f-format').value,
+    date: document.getElementById('f-date').value || new Date().toISOString().slice(0,10),
+    time: document.getElementById('f-time').value,
+    interviewer: document.getElementById('f-interviewer').value.trim(),
+    status: document.getElementById('f-status').value,
+    link: document.getElementById('f-link').value.trim(),
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  if(editingId){
+    const idx = entries.findIndex(e => e.id === editingId);
+    entries[idx] = { ...entries[idx], ...data };
+  } else {
+    entries.unshift({ id: Date.now().toString(), ...data });
+  }
+  await persist();
+  closePanel();
+  render();
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  await persist();
+  render();
+}
+
+async function updateStatus(id, status){
+  const idx = entries.findIndex(e => e.id === id);
+  entries[idx].status = status;
+  await persist();
+  render();
+}
+
+function renderStats(){
+  const total = entries.length;
+  const counts = {Upcoming:0, Completed:0, Passed:0, Offer:0, Rejected:0};
+  entries.forEach(e => counts[e.status] = (counts[e.status]||0) + 1);
+  const statsEl = document.getElementById('stats');
+  statsEl.innerHTML = `
+    <div><span class="stat-num">${total}</span><span class="stat-label">total</span></div>
+    <div><span class="stat-num">${counts.Upcoming}</span><span class="stat-label">upcoming</span></div>
+    <div><span class="stat-num">${counts.Offer}</span><span class="stat-label">offers</span></div>
+  `;
+}
+
+function renderFilters(){
+  const filtersEl = document.getElementById('filters');
+  const options = ['All', ...STATUSES];
+  filtersEl.innerHTML = options.map(f =>
+    `<button class="filter-btn ${activeFilter===f?'active':''}" data-filter="${f}">${f}</button>`
+  ).join('');
+  filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+  });
+}
+
+function render(){
+  renderStats();
+  renderFilters();
+  const listEl = document.getElementById('list');
+  const filtered = activeFilter === 'All' ? entries : entries.filter(e => e.status === activeFilter);
+
+  if(filtered.length === 0){
+    listEl.innerHTML = `<div class="empty"><div class="role">Nothing here yet</div><div>Log your next interview to start tracking.</div></div>`;
+    return;
+  }
+
+  const sorted = [...filtered].sort((a,b) => {
+    const da = (a.date||'') + ' ' + (a.time||'');
+    const db = (b.date||'') + ' ' + (b.time||'');
+    return db.localeCompare(da);
+  });
+
+  listEl.innerHTML = sorted.map(e => `
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-top">
+          <span class="role">${escapeHtml(e.role)}</span>
+          <span class="company">${escapeHtml(e.company)}</span>
+          <span class="badge ${e.status}">${e.status}</span>
+        </div>
+        ${e.round ? `<div class="round">${escapeHtml(e.round)}</div>` : ''}
+        <div class="entry-meta">
+          <span>${e.date || '—'}${e.time ? ' · ' + e.time : ''}</span>
+          ${e.format ? `<span>${escapeHtml(e.format)}</span>` : ''}
+          ${e.interviewer ? `<span>with ${escapeHtml(e.interviewer)}</span>` : ''}
+        </div>
+        ${e.notes ? `<div class="entry-notes">${escapeHtml(e.notes)}</div>` : ''}
+        ${e.link ? `<div class="entry-link"><a href="${escapeHtml(e.link)}" target="_blank" rel="noopener">Join / view link →</a></div>` : ''}
+      </div>
+      <div class="entry-actions">
+        <select class="status-select" data-id="${e.id}">
+          ${STATUSES.map(s => `<option ${s===e.status?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <button class="icon-btn" data-edit="${e.id}">Edit</button>
+        <button class="icon-btn" data-del="${e.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const entry = entries.find(x => x.id === btn.dataset.edit);
+      openPanel(entry);
+    });
+  });
+  listEl.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => deleteEntry(btn.dataset.del));
+  });
+  listEl.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', () => updateStatus(sel.dataset.id, sel.value));
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+document.getElementById('openAdd').addEventListener('click', () => openPanel(null));
+document.getElementById('cancelBtn').addEventListener('click', closePanel);
+document.getElementById('saveBtn').addEventListener('click', saveEntry);
+
+load();
+</script>
+</body>
+</html>
